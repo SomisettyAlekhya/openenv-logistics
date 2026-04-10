@@ -1,0 +1,6 @@
+name: task_reroute
+description: Decide whether to reroute traffic.
+grader:
+  type: keyword
+  keywords:
+    - reroute

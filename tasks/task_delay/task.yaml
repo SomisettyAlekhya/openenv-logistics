@@ -1,0 +1,6 @@
+name: task_delay
+description: Decide whether to delay delivery.
+grader:
+  type: keyword
+  keywords:
+    - delay
