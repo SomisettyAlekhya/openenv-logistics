@@ -1,0 +1,19 @@
+[project]
+name = "openenv-logistics"
+version = "0.1.0"
+description = "OpenEnv Logistics Delivery Environment"
+authors = [
+  { name="Alekhya Somisetty" }
+]
+
+dependencies = [
+    "fastapi",
+    "uvicorn",
+    "pydantic",
+    "requests",
+    "openai"
+]
+
+[build-system]
+requires = ["setuptools", "wheel"]
+build-backend = "setuptools.build_meta"
