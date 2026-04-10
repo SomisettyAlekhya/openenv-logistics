@@ -1,6 +1,0 @@
-name: task_dispatch
-description: Decide whether to dispatch a vehicle.
-grader:
-  type: keyword
-  keywords:
-    - dispatch
