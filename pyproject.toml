@@ -1,21 +1,59 @@
-[project]
-name = "openenv-logistics"
-version = "0.1.0"
-description = "OpenEnv Logistics Environment"
-authors = [{name = "Alekhya Somisetty"}]
+from fastapi import FastAPI
+import uvicorn
 
-dependencies = [
-    "fastapi",
-    "uvicorn",
-    "pydantic",
-    "requests",
-    "openai",
-    "openenv-core>=0.2.0"
-]
+app = FastAPI()
 
-[project.scripts]
-server = "server.app:main"
+state = {
+    "pending_orders": 10,
+    "vehicle_capacity": 5,
+    "traffic_level": 1,
+    "total_delivered": 0
+}
 
-[build-system]
-requires = ["setuptools", "wheel"]
-build-backend = "setuptools.build_meta"
+@app.get("/")
+def root():
+    return {"message": "OpenEnv Logistics Environment Running"}
+
+@app.post("/reset")
+def reset():
+    global state
+    state = {
+        "pending_orders": 10,
+        "vehicle_capacity": 5,
+        "traffic_level": 1,
+        "total_delivered": 0
+    }
+    return state
+
+@app.post("/step")
+def step(action: str):
+
+    reward = 0.0
+
+    if action == "dispatch":
+        delivered = min(state["vehicle_capacity"], state["pending_orders"])
+        state["pending_orders"] -= delivered
+        state["total_delivered"] += delivered
+        reward = delivered / 10
+
+    elif action == "reroute":
+        reward = 0.3
+
+    elif action == "delay":
+        reward = -0.1
+
+    done = state["pending_orders"] == 0
+
+    return {
+        "state": state,
+        "reward": reward,
+        "done": done
+    }
+
+
+def main():
+    uvicorn.run(app, host="0.0.0.0", port=7860)
+
+
+if __name__ == "__main__":
+    main()
