@@ -1,3 +1,0 @@
-name: fleet_dispatch
-description: Dispatch a vehicle to handle a new delivery request.
-grader: grader.py
