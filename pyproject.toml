@@ -1,18 +1,20 @@
 [project]
 name = "openenv-logistics"
 version = "0.1.0"
-description = "OpenEnv Logistics Delivery Environment"
-authors = [
-  { name="Alekhya Somisetty" }
-]
+description = "OpenEnv Logistics Environment"
+authors = [{name = "Alekhya Somisetty"}]
 
 dependencies = [
     "fastapi",
     "uvicorn",
     "pydantic",
     "requests",
-    "openai"
+    "openai",
+    "openenv-core>=0.2.0"
 ]
+
+[project.scripts]
+server = "server.app:main"
 
 [build-system]
 requires = ["setuptools", "wheel"]
