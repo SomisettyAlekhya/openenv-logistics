@@ -1,0 +1,25 @@
+
+name: logistics-delivery-env
+description: AI agent optimizes delivery dispatch decisions
+version: 1.0
+
+observation_space:
+  pending_orders:
+    type: integer
+    min: 0
+    max: 100
+  vehicle_capacity:
+    type: integer
+    min: 0
+    max: 20
+  traffic_level:
+    type: integer
+    min: 0
+    max: 2
+
+action_space:
+  type: discrete
+  actions:
+    - dispatch
+    - reroute
+    - delay
