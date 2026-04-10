@@ -1,0 +1,4 @@
+tasks:
+  - tasks/route_optimization
+  - tasks/delivery_priority
+  - tasks/fleet_dispatch
