@@ -1,9 +1,12 @@
-
 from fastapi import FastAPI
 from .environment import LogisticsEnv
 
 app = FastAPI()
 env = LogisticsEnv()
+
+@app.get("/")
+def home():
+    return {"message": "OpenEnv Logistics Environment Running"}
 
 @app.post("/reset")
 def reset():
