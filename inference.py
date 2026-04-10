@@ -2,11 +2,15 @@ import os
 import requests
 from openai import OpenAI
 
-API_BASE_URL = os.getenv("API_BASE_URL")
-MODEL_NAME = os.getenv("MODEL_NAME")
-HF_TOKEN = os.getenv("HF_TOKEN")
+# Required environment variables injected by validator
+API_BASE_URL = os.environ["API_BASE_URL"]
+API_KEY = os.environ["API_KEY"]
+MODEL_NAME = os.environ.get("MODEL_NAME", "gpt-4o-mini")
 
-client = OpenAI(base_url=API_BASE_URL, api_key=HF_TOKEN)
+client = OpenAI(
+    base_url=API_BASE_URL,
+    api_key=API_KEY
+)
 
 ENV_URL = "http://localhost:7860"
 
@@ -24,7 +28,29 @@ try:
 
     for i in range(5):
 
-        action = "dispatch"
+        prompt = f"""
+Environment state:
+pending_orders: {state.get('pending_orders')}
+traffic_level: {state.get('traffic_level')}
+
+Choose one action:
+dispatch
+reroute
+delay
+
+Return only the action.
+"""
+
+        try:
+            completion = client.chat.completions.create(
+                model=MODEL_NAME,
+                messages=[{"role": "user", "content": prompt}]
+            )
+
+            action = completion.choices[0].message.content.strip().lower()
+
+        except Exception:
+            action = "dispatch"
 
         try:
             r = requests.post(
@@ -35,6 +61,7 @@ try:
 
             data = safe_json(r)
             reward = data.get("reward", 0)
+            state = data.get("state", state)
 
         except Exception:
             reward = 0
@@ -43,8 +70,6 @@ try:
 
     print("[END] score=0.7")
 
-except Exception as e:
-
-    # Never crash
+except Exception:
     print("[STEP] action=error reward=0")
     print("[END] score=0")
