@@ -2,31 +2,46 @@ import os
 import requests
 from openai import OpenAI
 
-# Required environment variables injected by validator
-client = OpenAI(
-    base_url=os.environ["API_BASE_URL"],
-    api_key=os.environ["API_KEY"]
-)
-
-MODEL = os.environ.get("MODEL_NAME", "gpt-4o-mini")
-
-# environment URL (validator usually exposes it on localhost)
-ENV_URL = os.environ.get("ENV_URL", "http://localhost:7860")
-
 print("[START]")
 
-# Make ONE guaranteed LLM call first (so proxy sees it)
-response = client.chat.completions.create(
-    model=MODEL,
-    messages=[{"role": "user", "content": "Reply with the word dispatch"}]
-)
+MODEL = os.environ.get("MODEL_NAME", "gpt-4o-mini")
+ENV_URL = os.environ.get("ENV_URL", "http://localhost:7860")
 
-action = response.choices[0].message.content.strip().lower()
+action = "dispatch"
 
 try:
-    state = requests.post(f"{ENV_URL}/reset", timeout=5).json()
+    # initialize client with validator proxy
+    client = OpenAI(
+        base_url=os.environ["API_BASE_URL"],
+        api_key=os.environ["API_KEY"]
+    )
+
+    try:
+        # LLM call
+        response = client.chat.completions.create(
+            model=MODEL,
+            messages=[
+                {"role": "user", "content": "Choose one word: dispatch, reroute, delay"}
+            ]
+        )
+
+        action = response.choices[0].message.content.strip().lower()
+
+    except Exception as llm_error:
+        print(f"LLM error: {llm_error}")
+        action = "dispatch"
+
+except Exception as client_error:
+    print(f"Client init error: {client_error}")
+    action = "dispatch"
+
+
+# try interacting with environment
+try:
+    requests.post(f"{ENV_URL}/reset", timeout=5)
 except:
-    state = {}
+    pass
+
 
 for i in range(5):
 
@@ -36,9 +51,11 @@ for i in range(5):
             params={"action": action},
             timeout=5
         )
+
         data = r.json()
         reward = data.get("reward", 0)
-    except:
+
+    except Exception as env_error:
         reward = 0
 
     print(f"[STEP] action={action} reward={reward}")
