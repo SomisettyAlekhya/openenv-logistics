@@ -1,4 +1,16 @@
 
+---
+title: OpenEnv Logistics Delivery Environment
+emoji: 🚚
+colorFrom: blue
+colorTo: green
+sdk: docker
+sdk_version: "1.0"
+python_version: "3.10"
+app_file: server/app.py
+pinned: false
+---
+
 # Logistics Delivery Optimization OpenEnv
 
 This OpenEnv simulates a simple **delivery logistics optimization problem**.
