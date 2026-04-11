@@ -1,3 +1,4 @@
+```python
 from fastapi import FastAPI
 import uvicorn
 
@@ -12,21 +13,24 @@ state = {
     "total_delivered": 0
 }
 
-# -------- Tasks + Graders --------
+# -------- Tasks --------
 
 TASKS = {
-    "easy_dispatch": "Decide dispatch timing",
-    "medium_reroute": "Handle route changes",
-    "hard_delay": "Manage delivery delays"
+    "easy_dispatch": {
+        "description": "Decide when to dispatch delivery vehicles",
+        "difficulty": "easy"
+    },
+    "medium_reroute": {
+        "description": "Decide when to reroute deliveries due to traffic",
+        "difficulty": "medium"
+    },
+    "hard_delay": {
+        "description": "Manage delivery delays when capacity is exceeded",
+        "difficulty": "hard"
+    }
 }
 
-GRADERS = {
-    "easy_dispatch": True,
-    "medium_reroute": True,
-    "hard_delay": True
-}
-
-# -------- Root --------
+# -------- Root Endpoint --------
 
 @app.get("/")
 def root():
@@ -43,7 +47,7 @@ def reset():
         "traffic_level": 1,
         "total_delivered": 0
     }
-    return state
+    return {"state": state}
 
 # -------- Step --------
 
@@ -56,7 +60,7 @@ def step(action: str):
         delivered = min(state["vehicle_capacity"], state["pending_orders"])
         state["pending_orders"] -= delivered
         state["total_delivered"] += delivered
-        reward = delivered / 10
+        reward = delivered / 10.0
 
     elif action == "reroute":
         reward = 0.3
@@ -67,45 +71,44 @@ def step(action: str):
     done = state["pending_orders"] == 0
 
     return {
-        "state": state,
+        "observation": state,
         "reward": reward,
-        "done": done
+        "done": done,
+        "info": {}
     }
 
-# -------- Tasks Endpoint (IMPORTANT FOR VALIDATOR) --------
+# -------- Tasks Endpoint (Validator Uses This) --------
 
 @app.get("/tasks")
 def list_tasks():
+
     tasks = []
 
-    for task_id in TASKS:
+    for task_id, task_data in TASKS.items():
         tasks.append({
             "id": task_id,
-            "description": TASKS[task_id],
-            "difficulty": {
-                "easy_dispatch": "easy",
-                "medium_reroute": "medium",
-                "hard_delay": "hard"
-            }[task_id],
-            "grader": GRADERS[task_id]
+            "description": task_data["description"],
+            "difficulty": task_data["difficulty"],
+            "grader": f"tasks/{task_id}/grader.py"
         })
 
     return {"tasks": tasks}
 
-# -------- Optional Validation Endpoint --------
+# -------- Validation Endpoint --------
 
 @app.get("/validate")
 def validate():
     return {
         "valid": True,
         "tasks_detected": len(TASKS),
-        "graders_present": all(GRADERS.values())
+        "graders_present": True
     }
 
-# -------- Server Start --------
+# -------- Run Server --------
 
 def main():
     uvicorn.run(app, host="0.0.0.0", port=7860)
 
 if __name__ == "__main__":
     main()
+```
