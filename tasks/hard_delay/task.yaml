@@ -1,5 +1,4 @@
 id: hard_delay
-name: hard_delay
-description: Manage delivery delays when orders exceed vehicle capacity
-difficulty: hard
+env: LogisticsEnv
 grader: grader.py
+max_steps: 20
