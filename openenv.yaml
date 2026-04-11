@@ -1,8 +1,8 @@
-name: logistics-decision-env
-description: Logistics decision environment for dispatching delivery vehicles
+name: openenv-logistics
+description: Logistics decision environment
 entrypoint: env:LogisticsEnv
 
 tasks:
-  - tasks/easy_dispatch
-  - tasks/medium_reroute
-  - tasks/hard_delay
+  - easy_dispatch
+  - medium_reroute
+  - hard_delay
