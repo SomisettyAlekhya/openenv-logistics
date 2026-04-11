@@ -1,3 +1,5 @@
+id: easy_dispatch
 name: easy_dispatch
-description: Dispatch a vehicle
+description: Decide when to dispatch a delivery vehicle
+difficulty: easy
 grader: grader.py
