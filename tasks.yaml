@@ -1,12 +1,12 @@
 tasks:
   - id: easy_dispatch
-    path: tasks/easy_dispatch
+    task: tasks/easy_dispatch/task.yaml
     grader: tasks/easy_dispatch/grader.py
 
   - id: medium_reroute
-    path: tasks/medium_reroute
+    task: tasks/medium_reroute/task.yaml
     grader: tasks/medium_reroute/grader.py
 
   - id: hard_delay
-    path: tasks/hard_delay
+    task: tasks/hard_delay/task.yaml
     grader: tasks/hard_delay/grader.py
