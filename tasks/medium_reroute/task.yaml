@@ -1,3 +1,3 @@
-name: delay_task
-description: Delay delivery
-grader: grader.py
+name: medium_reroute
+description: Reroute traffic
+grader: grader.p
