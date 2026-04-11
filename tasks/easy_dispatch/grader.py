@@ -1,13 +1,8 @@
-def grade(output, info=None):
-    """
-    Grades based on whether the agent chose 'dispatch'
-    """
-    if not output:
+def grade(step_rewards):
+    if not step_rewards:
         return 0.0
 
-    output = str(output).lower()
+    score = sum(step_rewards) / len(step_rewards)
 
-    if "dispatch" in output:
-        return 1.0
-
-    return 0.0
+    # IMPORTANT: strict clamp
+    return max(0.0, min(1.0, float(score)))
