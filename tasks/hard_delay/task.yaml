@@ -1,4 +1,0 @@
-id: hard_delay
-env: LogisticsEnv
-grader: grader.py
-
