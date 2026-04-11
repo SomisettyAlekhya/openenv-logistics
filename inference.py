@@ -45,15 +45,14 @@ Return only one word.
         return "dispatch"
 
 
-def run_episode(task_name: str, max_steps: int = 10):
+def run_episode(task_name):
 
     env = LogisticsEnv(task=task_name)
-
     obs = env.reset()
 
     rewards = []
 
-    for _ in range(max_steps):
+    for _ in range(10):
 
         action = get_action(obs)
 
@@ -80,19 +79,19 @@ def main():
         try:
             rewards = run_episode(t)
 
-            if len(rewards) == 0:
+            if not rewards:
                 avg = 0.5
             else:
                 avg = sum(rewards) / len(rewards)
 
-            avg = max(0.01, min(0.99, float(avg)))
+            avg = max(0.01, min(0.99, avg))
 
             print(f"{t}: {avg:.4f}")
 
             scores.append(avg)
 
         except Exception as e:
-            print(f"ERROR in {t}: {e}")
+            print(f"ERROR {t}: {e}")
             scores.append(0.5)
 
     final_score = sum(scores) / len(scores)
