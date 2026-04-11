@@ -1,17 +1,17 @@
 def grade(step_rewards):
 
     if not step_rewards:
-        return 0.5  # IMPORTANT: avoid 0.0
+        return 0.51  # NEVER 0
 
     score = sum(step_rewards) / len(step_rewards)
 
-    # scale into (0,1) strictly
-    score = score * 0.9 + 0.05
+    # normalize into STRICT (0,1)
+    score = 0.1 + 0.8 * score
 
-    # ensure strict bounds (never 0 or 1)
+    # safety clamp (strict)
     if score <= 0.0:
-        score = 0.01
+        score = 0.11
     if score >= 1.0:
-        score = 0.99
+        score = 0.89
 
     return float(score)
