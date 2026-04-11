@@ -1,3 +1,5 @@
+id: medium_reroute
 name: medium_reroute
-description: Reroute traffic
-grader: grader.p
+description: Decide whether to reroute deliveries when traffic increases
+difficulty: medium
+grader: grader.py
