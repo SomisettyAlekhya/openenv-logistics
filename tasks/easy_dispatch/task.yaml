@@ -1,4 +1,0 @@
-id: easy_dispatch
-env: LogisticsEnv
-grader: grader.py
-
