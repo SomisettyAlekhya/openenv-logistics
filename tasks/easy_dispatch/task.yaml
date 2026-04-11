@@ -1,5 +1,4 @@
 id: easy_dispatch
-name: easy_dispatch
-description: Decide when to dispatch a delivery vehicle
-difficulty: easy
+env: LogisticsEnv
 grader: grader.py
+max_steps: 20
