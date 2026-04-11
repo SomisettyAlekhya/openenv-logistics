@@ -1,12 +1,7 @@
 import os
 from openai import OpenAI
-
 from env import LogisticsEnv
 
-
-# -----------------------------
-# CONFIG
-# -----------------------------
 MODEL = os.environ.get("MODEL_NAME", "gpt-4o-mini")
 
 client = OpenAI(
@@ -17,9 +12,6 @@ client = OpenAI(
 ACTIONS = ["dispatch", "reroute", "delay"]
 
 
-# -----------------------------
-# LLM ACTION SELECTOR
-# -----------------------------
 def get_action(obs):
 
     try:
@@ -31,16 +23,15 @@ State:
 - packages: {obs.packages}
 - traffic: {obs.traffic}
 
-Choose ONE action:
+Choose one action:
 dispatch, reroute, delay
 
-Return ONLY one word.
+Return only one word.
 """
 
         response = client.chat.completions.create(
             model=MODEL,
-            messages=[{"role": "user", "content": prompt}],
-            timeout=10
+            messages=[{"role": "user", "content": prompt}]
         )
 
         action = response.choices[0].message.content.strip().lower()
@@ -54,42 +45,35 @@ Return ONLY one word.
         return "dispatch"
 
 
-# -----------------------------
-# RUN ONE EPISODE
-# -----------------------------
 def run_episode(task_name: str, max_steps: int = 10):
 
     env = LogisticsEnv(task=task_name)
 
     obs = env.reset()
 
-    step_rewards = []
+    rewards = []
 
     for _ in range(max_steps):
 
-        # safe attribute access (NO crash possible)
         action = get_action(obs)
 
         obs, reward, done, _ = env.step(action)
 
-        step_rewards.append(float(reward))
+        rewards.append(float(reward))
 
         if done:
             break
 
-    return step_rewards
+    return rewards
 
 
-# -----------------------------
-# MAIN
-# -----------------------------
 def main():
 
-    print("[START] inference running")
+    print("[START]")
 
     tasks = ["easy", "medium", "hard"]
 
-    all_scores = {}
+    scores = []
 
     for t in tasks:
 
@@ -97,26 +81,24 @@ def main():
             rewards = run_episode(t)
 
             if len(rewards) == 0:
-                avg_reward = 0.5
+                avg = 0.5
             else:
-                avg_reward = sum(rewards) / len(rewards)
+                avg = sum(rewards) / len(rewards)
 
-            # STRICT safety for validator
-            avg_reward = max(0.01, min(0.99, float(avg_reward)))
+            avg = max(0.01, min(0.99, float(avg)))
 
-            all_scores[t] = avg_reward
+            print(f"{t}: {avg:.4f}")
 
-            print(f"[TASK] {t} | avg_reward = {avg_reward:.4f}")
+            scores.append(avg)
 
         except Exception as e:
-            print(f"[TASK ERROR] {t}: {e}")
-            all_scores[t] = 0.5
+            print(f"ERROR in {t}: {e}")
+            scores.append(0.5)
 
-    final_score = sum(all_scores.values()) / len(all_scores)
-
+    final_score = sum(scores) / len(scores)
     final_score = max(0.01, min(0.99, final_score))
 
-    print(f"[END] final_score = {final_score:.4f}")
+    print("[END]", final_score)
 
 
 if __name__ == "__main__":
