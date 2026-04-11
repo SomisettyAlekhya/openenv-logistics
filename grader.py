@@ -5,7 +5,13 @@ def grade(step_rewards):
 
     score = sum(step_rewards) / len(step_rewards)
 
-    # STRICT (0,1)
-    score = 0.1 + 0.8 * score
+    # FORCE INTO STRICT (0,1)
+    score = 0.2 + 0.6 * score
 
-    return max(0.01, min(0.99, float(score)))
+    # safety clamp (NEVER boundaries)
+    if score <= 0.0:
+        score = 0.11
+    if score >= 1.0:
+        score = 0.89
+
+    return float(score)
