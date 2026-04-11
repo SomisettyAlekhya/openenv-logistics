@@ -1,31 +1,8 @@
-name: logistics-delivery-env
-description: AI agent optimizes delivery dispatch decisions
-version: 1.0
+name: logistics-decision-env
+description: Logistics decision environment for dispatching delivery vehicles
+entrypoint: env:LogisticsEnv
 
-observation_space:
-  pending_orders:
-    type: integer
-    min: 0
-    max: 100
-
-  vehicle_capacity:
-    type: integer
-    min: 0
-    max: 20
-
-  traffic_level:
-    type: integer
-    min: 0
-    max: 2
-
-  total_delivered:
-    type: integer
-    min: 0
-    max: 100
-
-action_space:
-  type: discrete
-  actions:
-    - dispatch
-    - reroute
-    - delay
+tasks:
+  - tasks/easy_dispatch
+  - tasks/medium_reroute
+  - tasks/hard_delay
