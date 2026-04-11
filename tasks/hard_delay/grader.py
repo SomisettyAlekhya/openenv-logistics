@@ -3,7 +3,7 @@ def grade(output, info=None):
     Accepts reroute or alternative routing decisions
     """
     if not output:
-        return 0
+        return 0.0
 
     output = str(output).lower()
 
@@ -11,6 +11,6 @@ def grade(output, info=None):
 
     for action in valid_actions:
         if action in output:
-            return 1
+            return 1.0
 
-    return 0
+    return 0.0
