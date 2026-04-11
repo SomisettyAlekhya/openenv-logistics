@@ -1,0 +1,12 @@
+tasks:
+  - id: easy_dispatch
+    env: LogisticsEnv
+    grader: easy_dispatch
+
+  - id: medium_reroute
+    env: LogisticsEnv
+    grader: medium_reroute
+
+  - id: hard_delay
+    env: LogisticsEnv
+    grader: hard_delay
