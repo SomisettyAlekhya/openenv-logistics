@@ -1,4 +1,12 @@
 tasks:
-  - tasks/route_optimization
-  - tasks/delivery_priority
-  - tasks/fleet_dispatch
+  - id: easy_dispatch
+    path: tasks/easy_dispatch
+    grader: tasks/easy_dispatch/grader.py
+
+  - id: medium_reroute
+    path: tasks/medium_reroute
+    grader: tasks/medium_reroute/grader.py
+
+  - id: hard_delay
+    path: tasks/hard_delay
+    grader: tasks/hard_delay/grader.py
