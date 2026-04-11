@@ -1,8 +1,8 @@
 name: openenv-logistics
 description: Logistics decision environment
-entrypoint: env:LogisticsEnv
+entrypoint: server.app:app
 
 tasks:
-  - easy_dispatch
-  - medium_reroute
-  - hard_delay
+  - tasks/easy_dispatch
+  - tasks/medium_reroute
+  - tasks/hard_delay
