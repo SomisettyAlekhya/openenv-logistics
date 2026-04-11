@@ -2,76 +2,109 @@ import os
 import requests
 from openai import OpenAI
 
-print("[START]")
+from env import LogisticsEnv
 
+
+# -----------------------------
+# LLM SETUP
+# -----------------------------
 MODEL = os.environ.get("MODEL_NAME", "gpt-4o-mini")
-ENV_URL = os.environ.get("ENV_URL", "http://localhost:7860")
 
 client = OpenAI(
-    base_url=os.environ["API_BASE_URL"],
-    api_key=os.environ["API_KEY"]
+    base_url=os.environ.get("API_BASE_URL"),
+    api_key=os.environ.get("API_KEY")
 )
 
-# reset environment
-try:
-    reset_resp = requests.post(f"{ENV_URL}/reset", timeout=5).json()
-except Exception as e:
-    print("Reset error:", e)
-    reset_resp = {}
 
-obs = reset_resp.get("observation", "")
+# -----------------------------
+# AGENT POLICY
+# -----------------------------
+ACTIONS = ["dispatch", "reroute", "delay"]
 
-total_reward = 0
-done = False
 
-for i in range(5):
+def get_action(obs):
 
-    # ask LLM based on observation
+    prompt = f"""
+You are a logistics agent.
+
+State:
+- task: {obs['task']}
+- packages: {obs['packages']}
+- traffic: {obs['traffic']}
+
+Choose ONE action from:
+dispatch, reroute, delay
+
+Return only one word.
+"""
+
     try:
         response = client.chat.completions.create(
             model=MODEL,
-            messages=[
-                {
-                    "role": "user",
-                    "content": f"""
-Observation: {obs}
-
-Choose ONE action from: dispatch, reroute, delay
-Return ONLY the word.
-"""
-                }
-            ]
+            messages=[{"role": "user", "content": prompt}]
         )
 
         action = response.choices[0].message.content.strip().lower()
-        action = action.split()[0]  # safety cleanup
 
-    except Exception as e:
-        print("LLM error:", e)
-        action = "dispatch"
+        if action not in ACTIONS:
+            action = "dispatch"
 
-    # environment step
-    try:
-        step_resp = requests.post(
-            f"{ENV_URL}/step",
-            params={"action": action},
-            timeout=5
-        ).json()
+        return action
 
-        obs = step_resp.get("observation", obs)
-        reward = step_resp.get("reward", 0)
-        done = step_resp.get("done", False)
+    except Exception:
+        return "dispatch"
 
-    except Exception as e:
-        print("Step error:", e)
-        reward = 0
-        done = True
 
-    total_reward += reward
+# -----------------------------
+# RUN EPISODE
+# -----------------------------
+def run_episode(task_name: str, max_steps: int = 10):
 
-    print(f"[STEP {i}] action={action} reward={reward}")
+    env = LogisticsEnv(task=task_name)
 
-    if done:
-        break
+    obs = env.reset()
 
-print(f"[END] score={total_reward}")
+    step_rewards = []
+
+    for _ in range(max_steps):
+
+        action = get_action(obs)
+
+        obs, reward, done, _ = env.step(action)
+
+        step_rewards.append(reward)
+
+        if done:
+            break
+
+    return step_rewards
+
+
+# -----------------------------
+# MAIN EVALUATION
+# -----------------------------
+def main():
+
+    print("[START] inference running")
+
+    tasks = ["easy", "medium", "hard"]
+
+    all_scores = {}
+
+    for t in tasks:
+
+        rewards = run_episode(t)
+
+        avg_reward = sum(rewards) / len(rewards) if rewards else 0.0
+
+        all_scores[t] = avg_reward
+
+        print(f"[TASK] {t} | avg_reward = {avg_reward:.4f}")
+
+    final_score = sum(all_scores.values()) / len(all_scores)
+
+    print(f"[END] final_score = {final_score:.4f}")
+
+
+if __name__ == "__main__":
+    main()
