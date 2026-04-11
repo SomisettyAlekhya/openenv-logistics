@@ -1,5 +1,4 @@
 id: medium_reroute
-name: medium_reroute
-description: Decide whether to reroute deliveries when traffic increases
-difficulty: medium
+env: LogisticsEnv
 grader: grader.py
+max_steps: 20
