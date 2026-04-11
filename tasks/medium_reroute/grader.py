@@ -15,3 +15,4 @@ def grade(step_rewards):
         score = 0.89
 
     return float(score)
+print("GRADER LOADED")
