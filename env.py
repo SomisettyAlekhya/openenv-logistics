@@ -1,4 +1,3 @@
-import random
 from pydantic import BaseModel
 from typing import Dict, Tuple
 
@@ -34,67 +33,74 @@ class LogisticsEnv:
 
     def reset(self) -> Observation:
 
-        # task-based difficulty scaling
         if self.task == "easy":
             packages = 5
-            traffic_level = "low"
+            traffic = "low"
         elif self.task == "medium":
             packages = 10
-            traffic_level = "normal"
+            traffic = "normal"
         else:
             packages = 15
-            traffic_level = "high"
+            traffic = "high"
 
         self.current_state = Observation(
-            traffic=traffic_level,
+            traffic=traffic,
             packages=packages,
             task=self.task
         )
 
         return self.current_state
 
-    def step(self, action: Action) -> Tuple[Observation, float, bool, Dict]:
 
-        reward = 0.0
+    def step(self, action) -> Tuple[Observation, float, bool, Dict]:
+
+        # ✅ SUPPORT BOTH STRING + Action OBJECT
+        if isinstance(action, str):
+            decision = action
+        else:
+            decision = action.decision
+
+        reward = 0.5  # safe default
 
         # -------------------------
         # Action logic
         # -------------------------
 
-        if action.decision == "dispatch":
+        if decision == "dispatch":
             reward = 0.6
 
-            # bonus/penalty based on traffic
             if self.current_state.traffic == "high":
                 reward *= 0.7
             elif self.current_state.traffic == "low":
                 reward += 0.2
 
-            # reduce packages
-            self.current_state.packages = max(0, self.current_state.packages - 2)
+            # slower decay → more steps (IMPORTANT)
+            self.current_state.packages = max(0, self.current_state.packages - 1)
 
-        elif action.decision == "reroute":
-            reward = 0.8 if self.current_state.traffic != "low" else 0.3
-
-            # improve traffic slightly
+        elif decision == "reroute":
+            reward = 0.7 if self.current_state.traffic != "low" else 0.4
             self.current_state.traffic = "low"
 
-        elif action.decision == "delay":
-            reward = 0.4
+        elif decision == "delay":
+            reward = 0.5
 
         else:
-            reward = 0.0  # invalid action
+            reward = 0.3  # NEVER 0
 
         # -------------------------
-        # Episode termination
+        # SAFE REWARD RANGE (CRITICAL)
+        # -------------------------
+
+        reward = 0.2 + 0.6 * reward   # center scaling
+        reward = max(0.1, min(0.9, reward))
+
+        # -------------------------
+        # DONE CONDITION
         # -------------------------
 
         done = self.current_state.packages == 0
 
-        # STRICT clamp (IMPORTANT for Phase-2)
-        reward = max(0.01, min(0.99, reward))
-
-        return self.current_state, reward, done, {}
+        return self.current_state, float(reward), done, {}
 
     def state(self) -> Dict:
         return self.current_state.dict()
