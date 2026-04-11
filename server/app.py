@@ -1,10 +1,8 @@
 from fastapi import FastAPI
-from pydantic import BaseModel
 import random
 
 app = FastAPI()
 
-# simple in-memory state
 state = {
     "step": 0,
     "done": False
@@ -13,24 +11,13 @@ state = {
 ACTIONS = ["dispatch", "reroute", "delay"]
 
 
-@app.get("/")
-def home():
-    return {"status": "running"}
-
-
-@app.post("/reset")
-def reset():
+def reset_env():
     state["step"] = 0
     state["done"] = False
-
-    observation = "Start: Choose action"
-    return {
-        "observation": observation
-    }
+    return {"observation": "Start: Choose action"}
 
 
-@app.post("/step")
-def step(action: str):
+def step_env(action: str):
 
     if state["done"]:
         return {
@@ -39,21 +26,32 @@ def step(action: str):
             "done": True
         }
 
-    # validate action
     if action not in ACTIONS:
         reward = -1
     else:
-        reward = random.choice([0, 1, 2])  # dummy reward logic
+        reward = random.choice([0, 1, 2])
 
     state["step"] += 1
-
-    observation = f"Step {state['step']} received action={action}"
+    obs = f"Step {state['step']} received action={action}"
 
     if state["step"] >= 5:
         state["done"] = True
 
     return {
-        "observation": observation,
+        "observation": obs,
         "reward": reward,
         "done": state["done"]
     }
+
+
+# ---------------------------
+# REQUIRED FOR VALIDATOR
+# ---------------------------
+
+def main():
+    import uvicorn
+    uvicorn.run("server.app:app", host="0.0.0.0", port=7860)
+
+
+if __name__ == "__main__":
+    main()
