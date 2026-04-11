@@ -1,4 +1,4 @@
 id: medium_reroute
 env: LogisticsEnv
 grader: grader.py
-max_steps: 20
+
