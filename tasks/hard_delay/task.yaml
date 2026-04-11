@@ -1,3 +1,5 @@
+id: hard_delay
 name: hard_delay
-description: Delay delivery
+description: Manage delivery delays when orders exceed vehicle capacity
+difficulty: hard
 grader: grader.py
