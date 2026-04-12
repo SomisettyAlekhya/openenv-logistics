@@ -1,15 +1,14 @@
 def grade(step_rewards):
-    if not step_rewards:
-        return 0.6
 
+    if not step_rewards:
+        return 0.5
+
+    # reward higher average delivery efficiency
     avg = sum(step_rewards) / len(step_rewards)
 
-    # keep strictly between (0,1)
-    score = 0.3 + 0.4 * avg
+    # encourage shorter episodes (faster completion)
+    length_penalty = min(len(step_rewards) / 10, 1.0)
 
-    if score <= 0.0:
-        score = 0.11
-    if score >= 1.0:
-        score = 0.89
+    score = 0.5 * avg + 0.5 * (1 - length_penalty)
 
-    return float(score)
+    return float(max(0.11, min(0.89, score)))
