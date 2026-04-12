@@ -1,15 +1,13 @@
 def grade(step_rewards):
+
     if not step_rewards:
-        return 0.6
+        return 0.5
 
     avg = sum(step_rewards) / len(step_rewards)
 
-    # keep strictly between (0,1)
-    score = 0.3 + 0.4 * avg
+    # reward longer sustained performance
+    duration_bonus = min(len(step_rewards) / 15, 1.0)
 
-    if score <= 0.0:
-        score = 0.11
-    if score >= 1.0:
-        score = 0.89
+    score = 0.5 * avg + 0.5 * duration_bonus
 
-    return float(score)
+    return float(max(0.11, min(0.89, score)))
