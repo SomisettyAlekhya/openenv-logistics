@@ -1,18 +1,18 @@
 tasks:
   - id: easy_dispatch
     env: LogisticsEnv
-    grader: grader.grade
+    grader: grade
     args:
       task: easy
 
   - id: medium_reroute
     env: LogisticsEnv
-    grader: grader.grade
+    grader: grade
     args:
       task: medium
 
   - id: hard_delay
     env: LogisticsEnv
-    grader: grader.grade
+    grader: grade
     args:
       task: hard
