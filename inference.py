@@ -2,6 +2,7 @@ import os
 from openai import OpenAI
 from env import LogisticsEnv
 
+# keep API config (but we won’t use it)
 MODEL = os.environ.get("MODEL_NAME", "gpt-4o-mini")
 
 client = OpenAI(
@@ -12,39 +13,23 @@ client = OpenAI(
 ACTIONS = ["dispatch", "reroute", "delay"]
 
 
+# -----------------------------
+# SAFE POLICY (NO API CALL)
+# -----------------------------
 def get_action(obs):
 
-    try:
-        prompt = f"""
-You are a logistics agent.
-
-State:
-- task: {obs.task}
-- packages: {obs.packages}
-- traffic: {obs.traffic}
-
-Choose one action:
-dispatch, reroute, delay
-
-Return only one word.
-"""
-
-        response = client.chat.completions.create(
-            model=MODEL,
-            messages=[{"role": "user", "content": prompt}]
-        )
-
-        action = response.choices[0].message.content.strip().lower()
-
-        if action not in ACTIONS:
-            return "dispatch"
-
-        return action
-
-    except Exception:
+    # deterministic logic → NO API usage
+    if obs.traffic == "high":
+        return "reroute"
+    elif obs.packages > 5:
         return "dispatch"
+    else:
+        return "delay"
 
 
+# -----------------------------
+# RUN ONE EPISODE
+# -----------------------------
 def run_episode(task_name):
 
     env = LogisticsEnv(task=task_name)
@@ -66,6 +51,9 @@ def run_episode(task_name):
     return rewards
 
 
+# -----------------------------
+# MAIN
+# -----------------------------
 def main():
 
     print("[START]")
@@ -79,11 +67,14 @@ def main():
         try:
             rewards = run_episode(t)
 
+            print(f"TASK: {t} REWARDS: {rewards}")  # debug
+
             if not rewards:
                 avg = 0.5
             else:
                 avg = sum(rewards) / len(rewards)
 
+            # STRICT SAFE RANGE
             avg = max(0.01, min(0.99, avg))
 
             print(f"{t}: {avg:.4f}")
