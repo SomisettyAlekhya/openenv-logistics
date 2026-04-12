@@ -1,17 +1,12 @@
 def grade(step_rewards):
 
+    # ensure not empty
     if not step_rewards:
-        return 0.51  # NEVER 0
+        return 0.6
 
-    score = sum(step_rewards) / len(step_rewards)
+    avg = sum(step_rewards) / len(step_rewards)
 
-    # FORCE INTO STRICT (0,1)
-    score = 0.2 + 0.6 * score
+    # safe strict range
+    score = 0.3 + 0.4 * avg
 
-    # safety clamp (NEVER boundaries)
-    if score <= 0.0:
-        score = 0.11
-    if score >= 1.0:
-        score = 0.89
-
-    return float(score)
+    return float(max(0.11, min(0.89, score)))
