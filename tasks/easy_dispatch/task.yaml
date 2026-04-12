@@ -1,0 +1,5 @@
+id: easy_dispatch
+env: LogisticsEnv
+grader: grader.grade
+args:
+  task: easy

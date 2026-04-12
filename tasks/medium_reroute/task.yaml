@@ -1,0 +1,5 @@
+id: medium_reroute
+env: LogisticsEnv
+grader: grader.grade
+args:
+  task: medium

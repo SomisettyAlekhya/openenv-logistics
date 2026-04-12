@@ -1,0 +1,5 @@
+id: hard_delay
+env: LogisticsEnv
+grader: grader.grade
+args:
+  task: hard
